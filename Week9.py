@@ -1,5 +1,5 @@
 
-# Lab Task 1: School Management System
+# Lab Task 1: School Management Systems
 
 
 class Person:
