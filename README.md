@@ -1,5 +1,6 @@
 # b1-programingg
 Python lab exercises for business applications
+<<<<<<< HEAD
 # b1-programingg
 Python lab exercises for business applications
 ## Lab Exercises
@@ -11,3 +12,7 @@ Python lab exercises for business applications
 5. [Week6.py](./week6.py)
 6. [Week7.py](./week7.py)
 7. [Week8.py](./Week8.py)
+=======
+## Lab Exercises
+
+>>>>>>> origin/main
