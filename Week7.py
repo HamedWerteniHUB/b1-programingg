@@ -1,6 +1,4 @@
-
 # LAB EXERCISE 1 – PRODUCT PRICING MANAGER
-
 
 import logging
 import re
@@ -19,8 +17,9 @@ logging.basicConfig(
 )
 
 
-# EXERCISE 1 FUNCTIONS
-
+# ==================================================
+# EXERCISE 1 FUNCTIONS (UNCHANGED)
+# ==================================================
 
 def calculate_discount(category, tier):
     """
@@ -52,7 +51,6 @@ def process_products(input_file, output_file):
         products = []
         total_discount = 0
 
-        # Read product data
         with open(input_file, "r") as file:
             for line_number, line in enumerate(file, start=1):
                 try:
@@ -86,7 +84,6 @@ def process_products(input_file, output_file):
                         f"Line {line_number}: Invalid price - {error}"
                     )
 
-        # Write pricing report
         with open(output_file, "w") as file:
             file.write("=" * 90 + "\n")
             file.write("PRICING REPORT\n")
@@ -111,7 +108,6 @@ def process_products(input_file, output_file):
 
             file.write("=" * 90 + "\n")
 
-        # Console summary
         average_discount = (
             total_discount / len(products) if products else 0
         )
@@ -127,9 +123,10 @@ def process_products(input_file, output_file):
         print(f"Error: Cannot write '{output_file}'")
 
 
-
+# ==================================================
 # LAB EXERCISE 2 – ADVANCED SERVER LOG ANALYZER
-
+# (REWRITTEN – ONLY THIS PART CHANGED)
+# ==================================================
 
 class LogAnalyzer:
     """
@@ -145,7 +142,6 @@ class LogAnalyzer:
             r'(\S+) - - \[(.*?)\] "(\S+) (\S+) \S+" (\d+) (\d+)'
         )
 
-        # Statistics
         self.total_requests = 0
         self.unique_ips = set()
         self.http_methods = Counter()
@@ -153,14 +149,12 @@ class LogAnalyzer:
         self.status_codes = Counter()
         self.errors = []
 
-        # Security tracking
         self.failed_logins = defaultdict(list)
         self.forbidden_access = []
         self.security_incidents = []
 
 
     def parse_log_line(self, line):
-        """Parse a single log entry."""
         match = self.log_pattern.match(line)
         if not match:
             return None
@@ -178,29 +172,27 @@ class LogAnalyzer:
 
 
     def analyze_security(self, entry):
-        """Detect security-related patterns."""
-
-        # Failed login detection
         if entry["url"] == "/login" and entry["status"] == 401:
             self.failed_logins[entry["ip"]].append(entry["timestamp"])
+            attempts = len(self.failed_logins[entry["ip"]])
 
-            if len(self.failed_logins[entry["ip"]]) >= 3:
+            if attempts >= 3:
                 incident = (
-                    f"Brute force attempt from {entry['ip']}"
+                    f"Brute force attempt from {entry['ip']} - "
+                    f"{attempts} failed attempts"
                 )
                 self.security_incidents.append(incident)
                 logging.warning(incident)
 
-        # Forbidden access
         if entry["status"] == 403:
             incident = (
-                f"Forbidden access: {entry['ip']} -> {entry['url']}"
+                f"Forbidden access attempt: "
+                f"{entry['ip']} -> {entry['url']}"
             )
             self.forbidden_access.append(incident)
             self.security_incidents.append(incident)
             logging.warning(incident)
 
-        # SQL injection patterns
         sql_patterns = ["union", "select", "drop", "insert", "--", ";"]
         if any(p in entry["url"].lower() for p in sql_patterns):
             incident = (
@@ -212,14 +204,15 @@ class LogAnalyzer:
 
 
     def process_logs(self):
-        """Read and analyze log file."""
         try:
+            logging.info(f"Starting analysis of {self.log_file}")
+
             with open(self.log_file, "r") as file:
                 for line_number, line in enumerate(file, start=1):
                     try:
                         entry = self.parse_log_line(line.strip())
                         if not entry:
-                            continue
+                            raise ValueError("Malformed log entry")
 
                         self.total_requests += 1
                         self.unique_ips.add(entry["ip"])
@@ -234,34 +227,42 @@ class LogAnalyzer:
 
                     except Exception as error:
                         logging.error(
-                            f"Line {line_number}: {error}"
+                            f"Line {line_number}: Error processing - {error}"
                         )
+
+            logging.info(
+                f"Analysis complete: {self.total_requests} requests processed"
+            )
 
         except FileNotFoundError:
             print("Error: Log file not found")
 
 
     def generate_reports(self):
-        """Generate all output files."""
 
-        # Summary report
         with open("summary_report.txt", "w") as file:
-            file.write("SERVER LOG SUMMARY\n")
-            file.write("=" * 60 + "\n")
-            file.write(f"Total requests: {self.total_requests}\n")
-            file.write(f"Unique visitors: {len(self.unique_ips)}\n")
+            file.write("=" * 70 + "\n")
+            file.write("SERVER LOG ANALYSIS SUMMARY\n")
+            file.write("=" * 70 + "\n\n")
+            file.write(f"Total Requests: {self.total_requests}\n")
+            file.write(f"Unique Visitors: {len(self.unique_ips)}\n")
 
-        # Security report
         with open("security_incidents.txt", "w") as file:
+            file.write("=" * 70 + "\n")
+            file.write("SECURITY INCIDENTS REPORT\n")
+            file.write("=" * 70 + "\n\n")
             for incident in self.security_incidents:
                 file.write(incident + "\n")
 
-        # Error log
         with open("error_log.txt", "w") as file:
+            file.write("=" * 70 + "\n")
+            file.write("HTTP ERRORS LOG\n")
+            file.write("=" * 70 + "\n\n")
             for error in self.errors:
                 file.write(
-                    f"{error['ip']} {error['method']} "
-                    f"{error['url']} {error['status']}\n"
+                    f"[{error['timestamp']}] {error['ip']} - "
+                    f"{error['method']} {error['url']} - "
+                    f"Status: {error['status']}\n"
                 )
 
 
@@ -271,10 +272,8 @@ class LogAnalyzer:
 
 if __name__ == "__main__":
 
-    # Run Exercise 1
     process_products("products.txt", "pricing_report.txt")
 
-    # Run Exercise 2
     analyzer = LogAnalyzer("server.log")
     analyzer.process_logs()
     analyzer.generate_reports()
